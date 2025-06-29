@@ -42,3 +42,62 @@ const createPlaylist = async (req, res) => {
   }
 }
 
+// Update A Playlist 
+const updatePlaylist = async (req, res) => {
+  try {
+    const playlist = await Playlist.findById(req.params.id)
+
+    if(!playlist) {
+      return res.status(404).json({ message: 'Playlist not found' })
+    }
+
+    //Only The Owner Can Update
+    if(!playlist.createdBy.equals(req.user._id)) {
+      return res.status(403).json({ message: 'Unauthorized'})
+    }
+
+    const { title, description, isPublic, songs } = req.body
+
+    playlist.title = title ?? playlist.title
+    playlist.description = description ?? playlist.description
+    playlist.isPublic = isPublic ?? playlist.isPublic
+    playlist.songs = songs ?? playlist.songs
+
+    await playlist.save()
+
+    res.status(200).json(playlist)
+
+  } catch (err) {
+    res.status(400).json({ message: 'Error updating playlist', error: err.message })
+  }
+}
+
+// Delete A Playlist
+const deletePlaylist = async (req, res) => {
+  try {
+    const playlist = await Playlist.findById(req.params.id)
+
+    if(!playlist) {
+      return res.status(404).json({ message: 'Playlist not found'})
+    }
+
+    // Only The Owner Can Delete
+    if(!playlist.createdBy.equals(req.user._id)) {
+      return res.status(403).json({ message: 'Unauthorized'})
+    }
+
+    await playlist.remove()
+
+    res.status(200).json({ message: 'Playlist deleted successfully' })
+  } catch (err) {
+    res.status(500).json({ message: 'Error deleting playlist', error: err.message})
+  }
+}
+
+module.exports = {
+  getAllPublicPlaylists,
+  getPlaylistById,
+  createPlaylist,
+  updatePlaylist,
+  deletePlaylist,
+}
