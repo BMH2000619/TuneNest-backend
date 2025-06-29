@@ -7,6 +7,7 @@ const path = require('path')
 // REQUIRE ROUTES
 const playlistRoutes = require('./routes/PlaylistRouter')
 const songRoutes = require('./routes/SongRouter')
+const commentRoutes = require('./routes/CommentRouter')
 
 const PORT = process.env.PORT || 3001
 
@@ -23,6 +24,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')))
 // APP USE MODELS
 app.use('/playlists', playlistRoutes)
 app.use('/songs', songRoutes)
+app.use('/comment', commentRoutes)
 
 
 app.use('/', (req, res) => {
