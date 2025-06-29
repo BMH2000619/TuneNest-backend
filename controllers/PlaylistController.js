@@ -27,3 +27,18 @@ const getPlaylistById = async (req, res) => {
   }
 }
 
+// Create A New Playlist
+const createPlaylist = async (req, res) => {
+  try {
+    const { title, description, isPublic, songs } = req.body
+
+    const newPlaylist = await Playlist.create({
+      title, description, isPublic, songs, createBy: req.user._id,
+    })
+
+    res.status(201).json(newPlaylist)
+  } catch (err) {
+    res.status(400).json({ message: 'Error creating playlist', error: err.message })
+  }
+}
+
