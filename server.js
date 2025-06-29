@@ -5,6 +5,7 @@ const multer = require('multer')
 const path = require('path')
 
 // REQUIRE ROUTES
+const AuthRouter = require('./routes/AuthRouter')
 const playlistRoutes = require('./routes/PlaylistRouter')
 const songRoutes = require('./routes/SongRouter')
 const commentRoutes = require('./routes/CommentRouter')
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')))
 
 // APP USE MODELS
+app.use('/auth', AuthRouter)
 app.use('/playlists', playlistRoutes)
 app.use('/songs', songRoutes)
 app.use('/comment', commentRoutes)
