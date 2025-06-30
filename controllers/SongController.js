@@ -35,8 +35,9 @@ const getSongById = async (req, res) => {
 // Create A New Song
 const createSong = async (req, res) => {
   req.user = res.locals.payload
-  console.log('DEBUG req.user:', req.user) // <-- Add this line
   try {
+    console.log('REQ.BODY:', req.body)
+    console.log('REQ.USER:', req.user)
     if (!req.user) {
       return res.status(401).json({ message: 'Unauthorized: No user found' })
     }
@@ -47,7 +48,7 @@ const createSong = async (req, res) => {
       artist,
       url,
       duration,
-      addedBy: req.user.id // <-- use id instead of _id
+      addedBy: req.user._id 
     })
 
     res.status(201).json(newSong)
