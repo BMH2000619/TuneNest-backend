@@ -1,4 +1,4 @@
-const Song = require('../models/Song')
+const { Song } = require('../models')
 
 // Get All Songs
 const getAllSongs = async (req, res) => {
@@ -6,6 +6,7 @@ const getAllSongs = async (req, res) => {
     const songs = await Song.find().populate('addedBy', 'username img')
     res.status(200).json(songs)
   } catch (err) {
+    console.error('getAllSongs error:', err)
     res
       .status(500)
       .json({ message: 'Failed to fetch songs', error: err.message })
@@ -33,7 +34,12 @@ const getSongById = async (req, res) => {
 
 // Create A New Song
 const createSong = async (req, res) => {
+  req.user = res.locals.payload
+  console.log('DEBUG req.user:', req.user) // <-- Add this line
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized: No user found' })
+    }
     const { title, artist, url, duration } = req.body
 
     const newSong = await Song.create({
@@ -41,10 +47,10 @@ const createSong = async (req, res) => {
       artist,
       url,
       duration,
-      addedBy: req.user._id
+      addedBy: req.user.id // <-- use id instead of _id
     })
 
-    res.status(291).json(newSong)
+    res.status(201).json(newSong)
   } catch (err) {
     res
       .status(400)
@@ -84,18 +90,20 @@ const updateSong = async (req, res) => {
 const deleteSong = async (req, res) => {
   try {
     const song = await Song.findById(req.params.id)
-    if(!song) {
+    if (!song) {
       return res.status(404).json({ message: 'Song not found' })
     }
 
-    if(!song.addedBy.equals(req.user._id)) {
+    if (!song.addedBy.equals(req.user._id)) {
       return res.status(403).json({ message: 'Unauthorized' })
     }
 
     await song.remove()
     res.status(200).json({ message: 'Song deleted successfully' })
   } catch (err) {
-    res.status(500).json({ message: 'Failed to delete song', error: err.message})
+    res
+      .status(500)
+      .json({ message: 'Failed to delete song', error: err.message })
   }
 }
 
@@ -104,5 +112,5 @@ module.exports = {
   getSongById,
   createSong,
   updateSong,
-  deleteSong,
+  deleteSong
 }

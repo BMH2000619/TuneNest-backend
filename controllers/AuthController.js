@@ -7,7 +7,7 @@ const Register = async (req, res) => {
     const { username, password, email, img } = req.body
 
     // Check for missing fields
-    if (!username || !password || !email ) {
+    if (!username || !password || !email) {
       return res.status(400).json({ error: 'Missing required fields' })
     }
 
@@ -46,24 +46,20 @@ const Register = async (req, res) => {
 
 const Login = async (req, res) => {
   try {
-    // Extracts the necessary fields from the request body
     const { email, password } = req.body
-    // Finds a user by a particular field (in this case, email)
     const user = await User.findOne({ email })
 
     if (!user) {
       return res.status(401).send({ status: 'Error', msg: 'User not found' })
     }
 
-    // Checks if the password matches the stored digest
     let matched = await middleware.comparePassword(
       password,
       user.passwordDigest
     )
-    // If they match, constructs a payload object of values we want on the front end
     if (matched) {
       let payload = {
-        id: user.id,
+        _id: user._id,
         email: user.email
       }
       let token = middleware.createToken(payload)
@@ -88,30 +84,26 @@ const Login = async (req, res) => {
 
 const UpdatePassword = async (req, res) => {
   try {
-    // Extracts the necessary fields from the request body
     const { oldPassword, newPassword } = req.body
-    // Finds a user by a particular field (in this case, the user's id from the URL param)
     let user = await User.findById(req.params.user_id)
 
     if (!user) {
       return res.status(404).send({ status: 'Error', msg: 'User not found' })
     }
 
-    // Checks if the password matches the stored digest
     let matched = await middleware.comparePassword(
       oldPassword,
       user.passwordDigest
     )
-    // If they match, hashes the new password, updates the db with the new digest, then sends the user as a response
     if (matched) {
       let passwordDigest = await middleware.hashPassword(newPassword)
       user = await User.findByIdAndUpdate(
         req.params.user_id,
         { passwordDigest },
-        { new: true } // <-- ensures you get the updated user
+        { new: true }
       )
       let payload = {
-        id: user.id,
+        _id: user._id,
         email: user.email
       }
       return res
@@ -134,11 +126,10 @@ const CheckSession = async (req, res) => {
   try {
     const { payload } = res.locals
     // Find the full user by id from the payload
-    const user = await User.findById(payload.id)
+    const user = await User.findById(payload._id) // <-- Use _id here
     if (!user) {
       return res.status(404).send({ status: 'Error', msg: 'User not found' })
     }
-    // Return the full user object (customize fields as needed)
     res.status(200).send({
       id: user._id,
       username: user.username,
