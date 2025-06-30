@@ -48,7 +48,7 @@ const createSong = async (req, res) => {
       artist,
       url,
       duration,
-      addedBy: req.user._id 
+      addedBy: req.user._id
     })
 
     res.status(201).json(newSong)
@@ -61,6 +61,7 @@ const createSong = async (req, res) => {
 
 // Update A Song
 const updateSong = async (req, res) => {
+  req.user = res.locals.payload
   try {
     const song = await Song.findById(req.params.id)
     if (!song) {
@@ -89,19 +90,25 @@ const updateSong = async (req, res) => {
 
 // Delete A Song
 const deleteSong = async (req, res) => {
+  req.user = res.locals.payload
   try {
     const song = await Song.findById(req.params.id)
     if (!song) {
       return res.status(404).json({ message: 'Song not found' })
     }
 
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized: No user found' })
+    }
+
     if (!song.addedBy.equals(req.user._id)) {
       return res.status(403).json({ message: 'Unauthorized' })
     }
 
-    await song.remove()
+    await song.deleteOne() // use deleteOne instead of remove for newer Mongoose
     res.status(200).json({ message: 'Song deleted successfully' })
   } catch (err) {
+    console.error('Delete song error:', err)
     res
       .status(500)
       .json({ message: 'Failed to delete song', error: err.message })
