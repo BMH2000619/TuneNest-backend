@@ -4,6 +4,12 @@ const cors = require('cors')
 const multer = require('multer')
 const path = require('path')
 
+const fs = require('fs')
+const uploadsDir = path.join(__dirname, 'public/uploads')
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true })
+}
+
 // REQUIRE ROUTES
 const AuthRouter = require('./routes/AuthRouter')
 const playlistRoutes = require('./routes/PlaylistRouter')
