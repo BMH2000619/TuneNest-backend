@@ -105,7 +105,7 @@ const deleteSong = async (req, res) => {
       return res.status(403).json({ message: 'Unauthorized' })
     }
 
-    await song.deleteOne() // use deleteOne instead of remove for newer Mongoose
+    await song.deleteOne()
     res.status(200).json({ message: 'Song deleted successfully' })
   } catch (err) {
     console.error('Delete song error:', err)

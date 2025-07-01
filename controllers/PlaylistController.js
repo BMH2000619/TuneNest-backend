@@ -1,29 +1,36 @@
-const Playlist = require('../models/Playlist')
-const Song = require('../models/Song')
+const { Playlist } = require('../models')
 
 // Get All Public Playlists
 const getAllPublicPlaylists = async (req, res) => {
   try {
-    const playlists = await Playlist.find({ isPublic: true }).populate('createdBy', 'username img').populate('songs')
+    const playlists = await Playlist.find({ isPublic: true })
+      .populate('createdBy', 'username img')
+      .populate('songs')
 
     res.status(200).json(playlists)
   } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch playlists', error: err.message })
+    res
+      .status(500)
+      .json({ message: 'Failed to fetch playlists', error: err.message })
   }
 }
 
 // Get a Single Playlist by ID
 const getPlaylistById = async (req, res) => {
   try {
-    const playlist = await Playlist.findById(req.params.id).populate('createdBy', 'username img').populate('songs')
+    const playlist = await Playlist.findById(req.params.id)
+      .populate('createdBy', 'username img')
+      .populate('songs')
 
-    if(!playlist) {
+    if (!playlist) {
       return res.status(404).json({ message: 'Playlist not found' })
     }
 
     res.status(200).json(playlist)
   } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch playlist', error: err.message })
+    res
+      .status(500)
+      .json({ message: 'Failed to fetch playlist', error: err.message })
   }
 }
 
@@ -33,27 +40,33 @@ const createPlaylist = async (req, res) => {
     const { title, description, isPublic, songs } = req.body
 
     const newPlaylist = await Playlist.create({
-      title, description, isPublic, songs, createBy: req.user._id,
+      title,
+      description,
+      isPublic,
+      songs,
+      createdBy: req.user._id
     })
 
     res.status(201).json(newPlaylist)
   } catch (err) {
-    res.status(400).json({ message: 'Error creating playlist', error: err.message })
+    res
+      .status(400)
+      .json({ message: 'Error creating playlist', error: err.message })
   }
 }
 
-// Update A Playlist 
+// Update A Playlist
 const updatePlaylist = async (req, res) => {
   try {
     const playlist = await Playlist.findById(req.params.id)
 
-    if(!playlist) {
+    if (!playlist) {
       return res.status(404).json({ message: 'Playlist not found' })
     }
 
     //Only The Owner Can Update
-    if(!playlist.createdBy.equals(req.user._id)) {
-      return res.status(403).json({ message: 'Unauthorized'})
+    if (!playlist.createdBy.equals(req.user._id)) {
+      return res.status(403).json({ message: 'Unauthorized' })
     }
 
     const { title, description, isPublic, songs } = req.body
@@ -66,9 +79,10 @@ const updatePlaylist = async (req, res) => {
     await playlist.save()
 
     res.status(200).json(playlist)
-
   } catch (err) {
-    res.status(400).json({ message: 'Error updating playlist', error: err.message })
+    res
+      .status(400)
+      .json({ message: 'Error updating playlist', error: err.message })
   }
 }
 
@@ -77,20 +91,22 @@ const deletePlaylist = async (req, res) => {
   try {
     const playlist = await Playlist.findById(req.params.id)
 
-    if(!playlist) {
-      return res.status(404).json({ message: 'Playlist not found'})
+    if (!playlist) {
+      return res.status(404).json({ message: 'Playlist not found' })
     }
 
     // Only The Owner Can Delete
-    if(!playlist.createdBy.equals(req.user._id)) {
-      return res.status(403).json({ message: 'Unauthorized'})
+    if (!playlist.createdBy.equals(req.user._id)) {
+      return res.status(403).json({ message: 'Unauthorized' })
     }
 
     await playlist.remove()
 
     res.status(200).json({ message: 'Playlist deleted successfully' })
   } catch (err) {
-    res.status(500).json({ message: 'Error deleting playlist', error: err.message})
+    res
+      .status(500)
+      .json({ message: 'Error deleting playlist', error: err.message })
   }
 }
 
@@ -99,5 +115,5 @@ module.exports = {
   getPlaylistById,
   createPlaylist,
   updatePlaylist,
-  deletePlaylist,
+  deletePlaylist
 }

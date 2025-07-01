@@ -54,6 +54,7 @@ const verifyToken = (req, res, next) => {
     if (payload) {
       res.locals.payload = payload // Passes the decoded payload to the next function
       // Calls the next function if the token is valid
+      req.user = payload
       return next()
     }
     res.status(401).send({ status: 'Error', msg: 'Unauthorized' })

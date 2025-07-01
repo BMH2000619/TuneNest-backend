@@ -4,16 +4,18 @@ const middleware = require('../middleware')
 
 // Public Routes
 router.get('/', controller.getAllPublicPlaylists)
-router.get('/', controller.getPlaylistById)
+router.get('/:id', controller.getPlaylistById)
 
 // Protected Routes
-router.post('/',
-  middleware.stripToken, 
-  middleware.verifyToken, 
+router.post(
+  '/',
+  middleware.stripToken,
+  middleware.verifyToken,
   controller.createPlaylist
 )
 
-router.put('/:id',
+router.put(
+  '/:id',
   middleware.stripToken,
   middleware.verifyToken,
   controller.updatePlaylist

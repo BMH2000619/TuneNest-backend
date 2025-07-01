@@ -126,7 +126,7 @@ const CheckSession = async (req, res) => {
   try {
     const { payload } = res.locals
     // Find the full user by id from the payload
-    const user = await User.findById(payload._id) // <-- Use _id here
+    const user = await User.findById(payload._id)
     if (!user) {
       return res.status(404).send({ status: 'Error', msg: 'User not found' })
     }
