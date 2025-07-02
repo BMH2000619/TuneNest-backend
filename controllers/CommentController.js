@@ -1,13 +1,17 @@
-const Comment = require('../models/Comment')
+const { Comment } = require('../models')
 
 // Get All Comment For A Specific Playlist
 const getCommentsByPlaylist = async (req, res) => {
   try {
-    const comments = await Comment.find({ playlistId: req.params.playlistId}).populate('userId', 'username img').sort({ createdAt: -1})
+    const comments = await Comment.find({ playlistId: req.params.playlistId })
+      .populate('userId', 'username img')
+      .sort({ createdAt: -1 })
 
     res.status(200).json(comments)
   } catch (err) {
-    res.status(500).json({ message: 'Failed to load comment', error: err.message })
+    res
+      .status(500)
+      .json({ message: 'Failed to load comment', error: err.message })
   }
 }
 
@@ -19,14 +23,16 @@ const createComment = async (req, res) => {
     const newComment = await Comment.create({
       playlistId: req.params.playlistId,
       userId: req.user._id,
-      comment,
+      comment
     })
 
     const populatedComment = await newComment.populate('userId', 'username img')
 
     res.status(201).json(populatedComment)
   } catch (err) {
-    res.status(400).json({ message: 'Failed to create comment', error: err.message })
+    res
+      .status(400)
+      .json({ message: 'Failed to create comment', error: err.message })
   }
 }
 
@@ -35,12 +41,14 @@ const updateComment = async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id)
 
-    if(!comment) {
-      return res.status(403).json({ message: 'Comment not found'})
+    if (!comment) {
+      return res.status(403).json({ message: 'Comment not found' })
     }
-    
+
     if (!comment.userId.equals(req.user._id)) {
-      return res.status(403).json({ message: 'Unauthorized to edit this comment' })
+      return res
+        .status(403)
+        .json({ message: 'Unauthorized to edit this comment' })
     }
 
     comment.comment = req.body.comment ?? comment.comment
@@ -58,18 +66,22 @@ const deleteComment = async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id)
 
-    if(!comment) {
-      return res.status(404).json({ message: 'Comment not found'})
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' })
     }
 
-    if(!comment.userId.equals(req.user._id)) {
-      return res.status(403).json({ message: 'Unauthorized to delete this comment' })
+    if (!comment.userId.equals(req.user._id)) {
+      return res
+        .status(403)
+        .json({ message: 'Unauthorized to delete this comment' })
     }
 
     await comment.remove()
     res.status(200).json({ message: 'Comment deleted successfully' })
   } catch (err) {
-    res.status(500).json({ message: 'Failed to delete comment', error: err.message })
+    res
+      .status(500)
+      .json({ message: 'Failed to delete comment', error: err.message })
   }
 }
 
@@ -77,5 +89,5 @@ module.exports = {
   getCommentsByPlaylist,
   createComment,
   updateComment,
-  deleteComment,
+  deleteComment
 }
