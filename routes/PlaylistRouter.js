@@ -28,4 +28,18 @@ router.delete(
   controller.deletePlaylist
 )
 
+router.post(
+  '/:id/like',
+  middleware.stripToken,
+  middleware.verifyToken,
+  controller.likePlaylist
+)
+
+router.post(
+  '/:id/unlike',
+  middleware.stripToken,
+  middleware.verifyToken,
+  controller.unlikePlaylist
+)
+
 module.exports = router

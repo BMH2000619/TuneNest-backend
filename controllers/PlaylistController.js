@@ -19,14 +19,11 @@ const getAllPublicPlaylists = async (req, res) => {
 const getPlaylistById = async (req, res) => {
   try {
     const playlist = await Playlist.findById(req.params.id)
-      .populate('createdBy', 'username img')
       .populate('songs')
-
-    if (!playlist) {
+      .populate('createdBy')
+    if (!playlist)
       return res.status(404).json({ message: 'Playlist not found' })
-    }
-
-    res.status(200).json(playlist)
+    res.json(playlist)
   } catch (err) {
     res
       .status(500)
@@ -110,10 +107,59 @@ const deletePlaylist = async (req, res) => {
   }
 }
 
+const likePlaylist = async (req, res) => {
+  try {
+    const playlist = await Playlist.findById(req.params.id)
+    if (!playlist)
+      return res.status(404).json({ message: 'Playlist not found' })
+    if (playlist.createdBy.equals(req.user._id)) {
+      return res
+        .status(403)
+        .json({ message: 'Owners cannot like their own playlist' })
+    }
+    if (!playlist.likes.includes(req.user._id)) {
+      playlist.likes.push(req.user._id)
+      await playlist.save()
+    }
+    // Populate before sending
+    const populated = await Playlist.findById(playlist._id)
+      .populate('songs')
+      .populate('createdBy')
+    res.status(200).json(populated)
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: 'Failed to like playlist', error: err.message })
+  }
+}
+
+const unlikePlaylist = async (req, res) => {
+  try {
+    const playlist = await Playlist.findById(req.params.id)
+    if (!playlist)
+      return res.status(404).json({ message: 'Playlist not found' })
+    playlist.likes = playlist.likes.filter(
+      (userId) => userId.toString() !== req.user._id.toString()
+    )
+    await playlist.save()
+    // Populate before sending
+    const populated = await Playlist.findById(playlist._id)
+      .populate('songs')
+      .populate('createdBy')
+    res.status(200).json(populated)
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: 'Failed to unlike playlist', error: err.message })
+  }
+}
+
 module.exports = {
   getAllPublicPlaylists,
   getPlaylistById,
   createPlaylist,
   updatePlaylist,
-  deletePlaylist
+  deletePlaylist,
+  likePlaylist,
+  unlikePlaylist
 }
