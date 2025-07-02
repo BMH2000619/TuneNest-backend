@@ -45,6 +45,8 @@ const updateComment = async (req, res) => {
       return res.status(403).json({ message: 'Comment not found' })
     }
 
+    console.log('comment.userId:', comment.userId, 'req.user._id:', req.user._id)
+
     if (!comment.userId.equals(req.user._id)) {
       return res
         .status(403)
@@ -70,15 +72,22 @@ const deleteComment = async (req, res) => {
       return res.status(404).json({ message: 'Comment not found' })
     }
 
-    if (!comment.userId.equals(req.user._id)) {
+    if (!comment.userId || !req.user || !req.user._id) {
+      return res.status(403).json({ message: 'Unauthorized or malformed user' })
+    }
+
+    console.log('comment.userId:', comment.userId, 'req.user._id:', req.user._id)
+
+    if (String(comment.userId) !== String(req.user._id)) {
       return res
         .status(403)
         .json({ message: 'Unauthorized to delete this comment' })
     }
 
-    await comment.remove()
+    await comment.deleteOne()
     res.status(200).json({ message: 'Comment deleted successfully' })
   } catch (err) {
+    console.error('Delete comment error:', err)
     res
       .status(500)
       .json({ message: 'Failed to delete comment', error: err.message })
