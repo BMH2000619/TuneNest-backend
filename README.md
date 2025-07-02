@@ -28,15 +28,13 @@ I used [Trello](https://trello.com/b/IIPnZzpk/tunenest) to design my User Scenar
 
 ### **_Screenshots_**
 
-![Image]()
-![Image]()
+![Image](https://i.imgur.com/jYaLNNY.png)
 
 ### **_Future Updates_**
 
--  
--  
--  
--  
+-  Add an api that contains all the songs and the latest one's.
+-  Add more security to the users.
+-  Add more features to ease the user's search for playlists and songs.
 
 ### **_Credits_**
 
